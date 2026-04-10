@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PrintDesk — Admin Dashboard</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body class="page-plain">
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a href="admin.html" class="navbar-brand">
+      <span>🖨️</span> PrintDesk
+      <!-- Admin badge next to brand -->
+      <span style="
+        background: var(--purple-main);
+        color: #fff;
+        font-size: 0.68rem;
+        font-weight: 700;
+        padding: 2px 7px;
+        border-radius: 99px;
+        margin-left: 4px;
+        letter-spacing: 0.06em;
+      ">ADMIN</span>
+    </a>
+    <div class="navbar-links">
+      <span style="font-size:0.85rem;color:var(--text-light);padding:6px 8px;">
+        🔒 Admin Panel
+      </span>
+      <button id="logout-btn">Logout</button>
+    </div>
+  </nav>
+
+  <!-- Page Content -->
+  <div class="container">
+
+    <div class="admin-header">
+      <div class="page-header" style="margin-bottom:0;">
+        <h2>🛠️ Admin Dashboard</h2>
+        <p>Manage and update all print requests from users.</p>
+      </div>
+      <!-- Refresh button to reload the table -->
+      <button class="btn btn-secondary btn-sm" onclick="renderAdminStats(); renderAdminTable();">
+        🔄 Refresh
+      </button>
+    </div>
+
+    <!-- =====================================================
+         Stats Row — summary counts
+         Values are set by renderAdminStats() in app.js
+         ===================================================== -->
+    <div class="stats-row">
+
+      <div class="stat-card">
+        <div class="stat-value" id="stat-total">0</div>
+        <div class="stat-label">Total Requests</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-value" style="color:var(--warning);" id="stat-pending">0</div>
+        <div class="stat-label">Pending</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-value" style="color:var(--info);" id="stat-processing">0</div>
+        <div class="stat-label">Processing</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-value" style="color:var(--success);" id="stat-completed">0</div>
+        <div class="stat-label">Completed</div>
+      </div>
+
+    </div>
+
+    <!-- =====================================================
+         All Requests Table
+         Rows inserted by renderAdminTable() in app.js.
+         Each row has "Processing" and "Complete" action buttons
+         that call updateStatus(id, status) from app.js.
+         ===================================================== -->
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Request ID</th>
+            <th>User</th>
+            <th>File Name</th>
+            <th>Copies</th>
+            <th>Type</th>
+            <th>Pages</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="admin-tbody">
+          <!-- Rows inserted by renderAdminTable() -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Empty state -->
+    <div id="admin-empty" class="empty-state" style="display:none;">
+      <div class="empty-icon">📭</div>
+      <p>No print requests yet. They will appear here once users submit them.</p>
+    </div>
+
+    <!-- How-to note for demo -->
+    <div style="
+      margin-top:24px;
+      background: #ede9fe;
+      border-radius: var(--radius);
+      padding:14px 16px;
+      font-size:0.84rem;
+      color: var(--purple-dark);
+    ">
+      <strong>💡 How to use:</strong>
+      Click <em>⚙️ Processing</em> to mark a request as being printed.
+      Click <em>✅ Complete</em> to mark it as ready for collection.
+      Users can see these status changes on their Orders page in real time.
+    </div>
+
+  </div><!-- end .container -->
+
+  <script src="js/app.js"></script>
+</body>
+</html>
