@@ -1,0 +1,70 @@
+.tableWrapper {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.table thead {
+  background: var(--midnight-indigo);
+}
+
+.table thead th {
+  padding: 14px 18px;
+  text-align: left;
+  color: var(--vanilla-cream);
+  font-weight: 600;
+  font-size: 0.82rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.table thead th:first-child {
+  border-radius: var(--radius-md) 0 0 0;
+}
+
+.table thead th:last-child {
+  border-radius: 0 var(--radius-md) 0 0;
+}
+
+.table tbody tr {
+  background: var(--cream-light);
+  transition: background var(--transition-fast);
+}
+
+.table tbody tr:nth-child(even) {
+  background: var(--vanilla-cream);
+}
+
+.table tbody tr:hover {
+  background: var(--cream-dark);
+}
+
+.table tbody td {
+  padding: 13px 18px;
+  color: var(--text-on-cream);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  white-space: nowrap;
+}
+
+.table tbody tr:last-child td:first-child {
+  border-radius: 0 0 0 var(--radius-md);
+}
+
+.table tbody tr:last-child td:last-child {
+  border-radius: 0 0 var(--radius-md) 0;
+}
+
+.emptyRow td {
+  text-align: center;
+  padding: 40px 18px !important;
+  color: var(--text-muted);
+  font-style: italic;
+}
