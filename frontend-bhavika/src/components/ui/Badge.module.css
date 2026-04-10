@@ -1,0 +1,50 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border-radius: var(--radius-full);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.pending {
+  background: rgba(232, 167, 78, 0.15);
+  color: var(--status-pending);
+}
+
+.pending .dot {
+  background: var(--status-pending);
+}
+
+.processing {
+  background: rgba(91, 155, 213, 0.15);
+  color: var(--status-processing);
+}
+
+.processing .dot {
+  background: var(--status-processing);
+}
+
+.completed {
+  background: rgba(93, 186, 110, 0.15);
+  color: var(--status-completed);
+}
+
+.completed .dot {
+  background: var(--status-completed);
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
