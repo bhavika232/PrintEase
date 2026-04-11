@@ -1,55 +1,63 @@
-// Dummy data and API placeholder services
-// Replace these with real fetch() calls when backend is ready
+const API_BASE = 'http://127.0.0.1:5000';
 
 let currentUser = null;
 
-// Dummy users
-const users = [
-  { id: 1, name: 'Bhavika Sharma', email: 'bhavika@example.com', password: 'password123', role: 'user' },
-  { id: 2, name: 'Admin User', email: 'admin@printease.com', password: 'admin123', role: 'admin' },
-];
-
-// Dummy print requests
-let printRequests = [
-  { id: 'REQ-001', userId: 1, fileName: 'Assignment_1.pdf', copies: 2, color: 'BW', pageRange: '1-10', status: 'Completed', createdAt: '2026-04-05' },
-  { id: 'REQ-002', userId: 1, fileName: 'Report_Final.docx', copies: 1, color: 'Color', pageRange: 'All', status: 'Processing', createdAt: '2026-04-06' },
-  { id: 'REQ-003', userId: 1, fileName: 'Presentation.pptx', copies: 3, color: 'Color', pageRange: '1-5', status: 'Pending', createdAt: '2026-04-07' },
-];
-
-let nextRequestId = 4;
+// Helper to handle fetch responses
+async function request(endpoint, options = {}) {
+  const url = `${API_BASE}${endpoint}`;
+  const response = await fetch(url, {
+    ...options
+  });
+  
+  let data;
+  if (response.headers.get('content-type')?.includes('application/json')) {
+    data = await response.json();
+  } else {
+    data = await response.text();
+  }
+  
+  if (!response.ok) {
+    throw new Error(data.message || data || 'API request failed');
+  }
+  return data;
+}
 
 // ===== AUTH API =====
 
 export async function loginUser(email, password) {
-  // Placeholder: Replace with fetch('/api/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) })
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const user = users.find(u => u.email === email && u.password === password);
-      if (user) {
-        currentUser = { id: user.id, name: user.name, email: user.email, role: user.role };
-        resolve({ success: true, user: currentUser });
-      } else {
-        reject(new Error('Invalid email or password'));
-      }
-    }, 500);
-  });
+  try {
+    const data = await request('/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    
+    currentUser = { 
+      id: data.user_id, 
+      name: data.name, 
+      email: email, 
+      role: data.role,
+      balance: data.balance
+    };
+    
+    return { success: true, user: currentUser };
+  } catch (error) {
+    throw error;
+  }
 }
 
 export async function registerUser(name, email, password) {
-  // Placeholder: Replace with fetch('/api/auth/register', { method: 'POST', body: JSON.stringify({ name, email, password }) })
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const exists = users.find(u => u.email === email);
-      if (exists) {
-        reject(new Error('Email already registered'));
-      } else {
-        const newUser = { id: users.length + 1, name, email, password, role: 'user' };
-        users.push(newUser);
-        currentUser = { id: newUser.id, name: newUser.name, email: newUser.email, role: newUser.role };
-        resolve({ success: true, user: currentUser });
-      }
-    }, 500);
-  });
+  try {
+    await request('/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password })
+    });
+    
+    return loginUser(email, password);
+  } catch (error) {
+    throw error;
+  }
 }
 
 export function getCurrentUser() {
@@ -60,72 +68,146 @@ export function logoutUser() {
   currentUser = null;
 }
 
+// ===== WALLET & PROFILE API =====
+
+export async function topUpUser(amount) {
+  try {
+    const data = await request('/topup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: currentUser.id, amount })
+    });
+    if (currentUser) {
+      currentUser.balance = data.new_balance;
+    }
+    return { success: true, newBalance: data.new_balance };
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function updateProfile(name, password) {
+  try {
+    await request('/update_profile', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: currentUser.id, name, password })
+    });
+    if (currentUser && name) {
+      currentUser.name = name;
+    }
+    return { success: true };
+  } catch (error) {
+    throw error;
+  }
+}
+
 // ===== PRINT REQUESTS API =====
 
-export async function submitPrintRequest(requestData) {
-  // Placeholder: Replace with fetch('/api/requests', { method: 'POST', body: JSON.stringify(requestData) })
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const newRequest = {
-        id: `REQ-${String(nextRequestId++).padStart(3, '0')}`,
-        userId: currentUser?.id || 1,
-        ...requestData,
-        status: 'Pending',
-        createdAt: new Date().toISOString().split('T')[0],
-      };
-      printRequests.push(newRequest);
-      resolve({ success: true, request: newRequest });
-    }, 400);
-  });
+export async function submitPrintRequest(requestData, file) {
+  try {
+    const formData = new FormData();
+    formData.append('user_id', currentUser?.id);
+    formData.append('copies', requestData.copies);
+    formData.append('color', requestData.color);
+    formData.append('pages', requestData.pageRange || 'All');
+    formData.append('file', file);
+    
+    const data = await request('/submit_request', {
+      method: 'POST',
+      body: formData // No Content-Type header needed for FormData
+    });
+    
+    if (currentUser) {
+      currentUser.balance = data.new_balance;
+    }
+    
+    return { success: true, message: data.message, cost: data.cost };
+  } catch (error) {
+    throw error;
+  }
 }
 
 export async function getUserRequests() {
-  // Placeholder: Replace with fetch('/api/requests/user')
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const userId = currentUser?.id || 1;
-      const userReqs = printRequests.filter(r => r.userId === userId);
-      resolve(userReqs);
-    }, 300);
-  });
+  try {
+    if (!currentUser) return [];
+    const data = await request(`/user_requests/${currentUser.id}`);
+    if (currentUser) {
+      currentUser.balance = data.balance;
+    }
+    
+    return (data.requests || []).map(r => ({
+      id: `REQ-${r.req_id}`,
+      fileName: r.file_name,
+      copies: r.copies,
+      color: r.color,
+      pageRange: r.pages,
+      cost: r.cost,
+      status: r.status,
+      createdAt: r.request_date
+    }));
+  } catch (error) {
+    console.error('Failed to fetch user requests:', error);
+    return [];
+  }
 }
 
 export async function getAllRequests() {
-  // Placeholder: Replace with fetch('/api/requests/all')
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve([...printRequests]);
-    }, 300);
-  });
+  try {
+    const data = await request('/all_requests');
+    
+    return data.map(r => ({
+      id: `REQ-${r.req_id}`,
+      userName: r.userName,
+      fileName: r.file_name,
+      copies: r.copies,
+      color: r.color,
+      pageRange: r.pages,
+      cost: r.cost,
+      status: r.status,
+      createdAt: r.request_date
+    }));
+  } catch (error) {
+    console.error('Failed to fetch all requests:', error);
+    return [];
+  }
 }
 
 export async function updateRequestStatus(requestId, newStatus) {
-  // Placeholder: Replace with fetch(`/api/requests/${requestId}/status`, { method: 'PUT', body: JSON.stringify({ status: newStatus }) })
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const req = printRequests.find(r => r.id === requestId);
-      if (req) {
-        req.status = newStatus;
-        resolve({ success: true, request: req });
-      }
-    }, 300);
-  });
+  try {
+    const numericId = requestId.replace('REQ-', '');
+    
+    const data = await request('/update_status', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ req_id: numericId, status: newStatus })
+    });
+    
+    return { success: true, message: data.message };
+  } catch (error) {
+    throw error;
+  }
+}
+
+export function downloadReceipt(requestId) {
+    const numericId = requestId.replace('REQ-', '');
+    const url = `${API_BASE}/receipt/${numericId}`;
+    window.open(url, '_blank');
 }
 
 // ===== STATS API =====
 
 export async function getUserStats() {
-  // Placeholder: Replace with fetch('/api/stats/user')
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const userId = currentUser?.id || 1;
-      const userReqs = printRequests.filter(r => r.userId === userId);
-      resolve({
-        total: userReqs.length,
-        pending: userReqs.filter(r => r.status === 'Pending').length,
-        processing: userReqs.filter(r => r.status === 'Processing').length,
-        completed: userReqs.filter(r => r.status === 'Completed').length,
-      });
-    }, 200);
-  });
+  try {
+    const requests = await getUserRequests();
+    return {
+      total: requests.length,
+      pending: requests.filter(r => r.status === 'Pending').length,
+      processing: requests.filter(r => r.status === 'Processing').length,
+      completed: requests.filter(r => r.status === 'Completed').length,
+      spent: requests.reduce((acc, r) => acc + (r.cost || 0), 0)
+    };
+  } catch (error) {
+    return { total: 0, pending: 0, processing: 0, completed: 0, spent: 0 };
+  }
 }

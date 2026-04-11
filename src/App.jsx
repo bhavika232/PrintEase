@@ -6,6 +6,7 @@ import UserDashboard from './pages/UserDashboard';
 import UploadRequest from './pages/UploadRequest';
 import OrderStatus from './pages/OrderStatus';
 import AdminDashboard from './pages/AdminDashboard';
+import Profile from './pages/Profile';
 import './index.css';
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
           <Route path="/upload" element={<UploadRequest />} />
           <Route path="/orders" element={<OrderStatus />} />
           <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/profile" element={<Profile />} />
         </Route>
         
         {/* Default redirect to login for undefined routes */}

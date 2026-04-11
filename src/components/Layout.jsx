@@ -1,5 +1,5 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { Printer, LayoutDashboard, Upload, ClipboardList, ShieldCheck, LogOut } from 'lucide-react';
+import { Printer, LayoutDashboard, Upload, ClipboardList, ShieldCheck, LogOut, User as UserIcon } from 'lucide-react';
 import { getCurrentUser, logoutUser } from '../services/api';
 import styles from './Layout.module.css';
 
@@ -48,6 +48,10 @@ export default function Layout() {
               </NavLink>
             </>
           )}
+          <NavLink to="/profile" className={linkClass}>
+              <UserIcon size={17} />
+              Profile & Wallet
+          </NavLink>
           <button className={styles.logoutBtn} onClick={handleLogout}>
             <LogOut size={17} />
             Logout
