@@ -119,7 +119,6 @@ def update_status():
 if __name__ == '__main__':
     app.run(debug=True)
 
-
 #PL/SQL
 @app.route('/submit_request_proc', methods=['POST'])
 def submit_request_proc():
